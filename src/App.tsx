@@ -35,6 +35,11 @@ import { VintagePhotoSlideshow } from './components/VintagePhotoSlideshow';
 import { GeminiPoeticAtelier } from './components/GeminiPoeticAtelier';
 import { ShareUrlModal } from './components/ShareUrlModal';
 import { FlowerBloomOrnament } from './components/FlowerBloomOrnament';
+import {
+  fetchSharedLetterById,
+  persistSharedLetter,
+  uploadOrCompressPhoto,
+} from './utils/supabaseStorage';
 
 type StudioTab = 'letter' | 'slides' | 'music' | 'gemini';
 
@@ -98,11 +103,10 @@ export default function App() {
     }
 
     if (shortKey) {
-      fetch(`/api/letters/${encodeURIComponent(shortKey)}`)
-        .then((res) => (res.ok ? res.json() : null))
-        .then((data) => {
-          if (data && data.letter) {
-            setConfig(data.letter);
+      fetchSharedLetterById(shortKey)
+        .then((savedLetter) => {
+          if (savedLetter) {
+            setConfig(savedLetter);
           }
         })
         .catch(() => {});
@@ -178,17 +182,7 @@ export default function App() {
 
     let shortId = config.id || `love-${Date.now().toString(36)}`;
     try {
-      const response = await fetch('/api/letters', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ letter: config }),
-      });
-      if (response.ok) {
-        const saved = await response.json();
-        if (saved.id) {
-          shortId = saved.id;
-        }
-      }
+      shortId = await persistSharedLetter(config);
     } catch {
       // Fallback gracefully to portable hash URL
     } finally {
@@ -247,48 +241,11 @@ export default function App() {
     }));
   };
 
-  const handleUploadSlideImage = (index: number, file: File) => {
-    const reader = new FileReader();
-    reader.onload = () => {
-      const rawResult = reader.result;
-      if (typeof rawResult !== 'string') return;
-
-      const img = new Image();
-      img.onload = () => {
-        try {
-          const maxDim = 1280;
-          let width = img.width;
-          let height = img.height;
-          if (width > maxDim || height > maxDim) {
-            if (width >= height) {
-              height = Math.round((height * maxDim) / width);
-              width = maxDim;
-            } else {
-              width = Math.round((width * maxDim) / height);
-              height = maxDim;
-            }
-          }
-          const canvas = document.createElement('canvas');
-          canvas.width = width;
-          canvas.height = height;
-          const ctx = canvas.getContext('2d');
-          if (ctx) {
-            ctx.drawImage(img, 0, 0, width, height);
-            const compressed = canvas.toDataURL('image/jpeg', 0.82);
-            handleSlideFieldUpdate(index, 'imageUrl', compressed);
-            return;
-          }
-        } catch {
-          // Fall back to raw data URL if canvas compression fails
-        }
-        handleSlideFieldUpdate(index, 'imageUrl', rawResult);
-      };
-      img.onerror = () => {
-        handleSlideFieldUpdate(index, 'imageUrl', rawResult);
-      };
-      img.src = rawResult;
-    };
-    reader.readAsDataURL(file);
+  const handleUploadSlideImage = async (index: number, file: File) => {
+    const uploadedOrCompressedUrl = await uploadOrCompressPhoto(file, index);
+    if (uploadedOrCompressedUrl) {
+      handleSlideFieldUpdate(index, 'imageUrl', uploadedOrCompressedUrl);
+    }
   };
 
   // ============================================================================

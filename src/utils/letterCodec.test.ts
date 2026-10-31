@@ -17,9 +17,11 @@ test('encodeLetterToHash and decodeLetterFromHash round-trip accurately with Nov
   const decoded = decodeLetterFromHash(encoded);
   assert.ok(decoded !== null);
   assert.equal(decoded?.occasionDate, '2026-11-01');
-  assert.equal(decoded?.recipientName, 'Elise');
+  assert.equal(decoded?.recipientName, 'Shane');
+  assert.equal(decoded?.senderName, 'Your Vin');
+  assert.equal(decoded?.waxMonogram, 'M❤S');
   assert.equal(decoded?.slides.length, 4);
-  assert.ok(decoded?.slides[0].imageUrl.startsWith('data:image/svg+xml;utf8,'));
+  assert.ok(decoded?.slides[0].imageUrl.startsWith('/assets/aistudio/'));
 });
 
 test('createShareUrl produces valid recipient URL with hash and shortId', () => {
