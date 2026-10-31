@@ -715,27 +715,29 @@ export default function App() {
                   </button>
                 </div>
 
-                <div className="space-y-3 max-h-[500px] overflow-y-auto pr-1">
+                <div className="space-y-3 max-h-[500px] overflow-y-auto pr-1 pt-1">
                   {config.slides.map((slide, index) => (
                     <div
                       key={slide.id}
                       className="photo-bloom-trigger relative rounded-xl border border-[#D4AF37]/25 hover:border-[#D4AF37]/65 bg-[#160408] p-3.5 space-y-2.5 transition-colors"
                     >
-                      <FlowerBloomOrnament
-                        size="sm"
-                        className="absolute top-2 right-10 z-20"
-                      />
                       <div className="flex items-center justify-between gap-2">
-                        <div className="flex items-center gap-2.5">
-                          <img
-                            src={
-                              slide.imageUrl ||
-                              VINTAGE_ARTWORKS.golden_hour_promenade.dataUri
-                            }
-                            alt={slide.title}
-                            referrerPolicy="no-referrer"
-                            className="w-10 h-8 rounded object-cover border border-[#D4AF37]/40 shrink-0"
-                          />
+                        <div className="flex items-center gap-3">
+                          <div className="relative shrink-0">
+                            <FlowerBloomOrnament
+                              size="sm"
+                              className="absolute -top-2.5 -right-2.5 z-20"
+                            />
+                            <img
+                              src={
+                                slide.imageUrl ||
+                                VINTAGE_ARTWORKS.golden_hour_promenade.dataUri
+                              }
+                              alt={slide.title}
+                              referrerPolicy="no-referrer"
+                              className="w-12 h-9 rounded object-cover border border-[#D4AF37]/45"
+                            />
+                          </div>
                           <span className="text-xs font-semibold text-[#F5E1A4]">
                             Photo 0{index + 1}
                           </span>

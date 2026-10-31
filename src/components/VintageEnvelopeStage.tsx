@@ -31,7 +31,7 @@ interface GoldCanvasParticle {
   twinklePhase: number;
   twinkleSpeed: number;
   color: string;
-  shape: 'star' | 'flake' | 'orb';
+  shape: 'heart' | 'star' | 'flake' | 'orb';
 }
 
 const GOLD_PALETTE = [
@@ -40,6 +40,14 @@ const GOLD_PALETTE = [
   '#E5C158', // Bright antique gold
   '#D4AF37', // Classic metallic gold
   '#C59B27', // Warm burnished gold
+];
+
+const HEART_PALETTE = [
+  '#FF6B8B', // Romantic blush rose
+  '#E03E5C', // Velvet crimson heart
+  '#FFB3C6', // Soft pink petal
+  '#F5E1A4', // Antique gold heart
+  '#A81C37', // Wine ruby heart
 ];
 
 function drawFourPointStar(
@@ -71,6 +79,98 @@ function drawFourPointStar(
   ctx.closePath();
   ctx.fill();
   ctx.restore();
+}
+
+function drawHeartParticle(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  size: number,
+  rotation: number
+) {
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.rotate(rotation);
+  const s = size * 0.11;
+  ctx.scale(s, s);
+  ctx.beginPath();
+  ctx.moveTo(0, 4);
+  ctx.bezierCurveTo(0, 1, -5, -5, -10, -5);
+  ctx.bezierCurveTo(-16, -5, -16, 3.5, -16, 3.5);
+  ctx.bezierCurveTo(-16, 9, -9, 15.4, 0, 21);
+  ctx.bezierCurveTo(9, 15.4, 16, 9, 16, 3.5);
+  ctx.bezierCurveTo(16, 3.5, 16, -5, 10, -5);
+  ctx.bezierCurveTo(5, -5, 0, 1, 0, 4);
+  ctx.closePath();
+  ctx.fill();
+  ctx.strokeStyle = 'rgba(255, 245, 214, 0.65)';
+  ctx.lineWidth = 1.4;
+  ctx.stroke();
+  ctx.restore();
+}
+
+/**
+ * Generates a burst of small heart-shaped particles and golden sparkles
+ * radiating from the Open Letter wax seal button.
+ */
+export function createHeartAndSparkleBurst(
+  originX: number,
+  originY: number
+): GoldCanvasParticle[] {
+  const heartCount = 46;
+  const sparkleCount = 42;
+
+  const hearts: GoldCanvasParticle[] = Array.from(
+    { length: heartCount },
+    (_, idx) => {
+      // Fan upward and outward in a romantic fountain + radial burst
+      const angle =
+        (idx / heartCount) * Math.PI * 2 + (Math.random() - 0.5) * 0.35;
+      const speed = 2.0 + Math.random() * 5.8;
+      return {
+        x: originX + (Math.random() - 0.5) * 20,
+        y: originY + (Math.random() - 0.5) * 16,
+        vx: Math.cos(angle) * speed,
+        vy: Math.sin(angle) * speed - (2.1 + Math.random() * 2.4),
+        size: 5.5 + Math.random() * 6.5,
+        alpha: 0.96 + Math.random() * 0.04,
+        decay: 0.0085 + Math.random() * 0.008,
+        rotation: (Math.random() - 0.5) * 0.65,
+        rotationSpeed: (Math.random() - 0.5) * 0.045,
+        twinklePhase: Math.random() * Math.PI * 2,
+        twinkleSpeed: 0.12 + Math.random() * 0.12,
+        color: HEART_PALETTE[idx % HEART_PALETTE.length],
+        shape: 'heart',
+      };
+    }
+  );
+
+  const sparkles: GoldCanvasParticle[] = Array.from(
+    { length: sparkleCount },
+    (_, idx) => {
+      const angle =
+        (idx / sparkleCount) * Math.PI * 2 + (Math.random() - 0.5) * 0.35;
+      const speed = 2.4 + Math.random() * 6.6;
+      const shapes: Array<'star' | 'flake' | 'orb'> = ['star', 'flake', 'orb'];
+      return {
+        x: originX + (Math.random() - 0.5) * 18,
+        y: originY + (Math.random() - 0.5) * 18,
+        vx: Math.cos(angle) * speed,
+        vy: Math.sin(angle) * speed - (1.4 + Math.random() * 2.0),
+        size: 3.8 + Math.random() * 6.2,
+        alpha: 0.95 + Math.random() * 0.05,
+        decay: 0.0095 + Math.random() * 0.01,
+        rotation: Math.random() * Math.PI * 2,
+        rotationSpeed: (Math.random() - 0.5) * 0.14,
+        twinklePhase: Math.random() * Math.PI * 2,
+        twinkleSpeed: 0.16 + Math.random() * 0.18,
+        color: GOLD_PALETTE[idx % GOLD_PALETTE.length],
+        shape: shapes[idx % shapes.length],
+      };
+    }
+  );
+
+  return [...hearts, ...sparkles];
 }
 
 export const VintageEnvelopeStage: React.FC<VintageEnvelopeStageProps> = ({
@@ -106,7 +206,11 @@ export const VintageEnvelopeStage: React.FC<VintageEnvelopeStageProps> = ({
     }
   }, [isOpen, animStage]);
 
-  // Single-shot Canvas Gold Sparkle Particle Burst when the Wax Seal is cracked
+  // Triggers a burst of small heart-shaped particles & gold sparkles when 'Open Letter' is clicked
+  const triggerHeartParticleBurst = () => {
+    setSparkleBurstId((id) => id + 1);
+  };
+
   useEffect(() => {
     if (sparkleBurstId === 0) return;
     const canvas = canvasRef.current;
@@ -122,7 +226,7 @@ export const VintageEnvelopeStage: React.FC<VintageEnvelopeStageProps> = ({
     canvas.height = Math.max(1, Math.floor(rect.height * dpr));
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
-    // Determine exact origin of the wax seal relative to the envelope container
+    // Determine exact origin of the Open Letter wax seal relative to the envelope container
     let originX = rect.width / 2;
     let originY = Math.min(rect.height * 0.68, 290);
     if (sealButtonRef.current) {
@@ -133,31 +237,7 @@ export const VintageEnvelopeStage: React.FC<VintageEnvelopeStageProps> = ({
       }
     }
 
-    const particleCount = 72;
-    const particles: GoldCanvasParticle[] = Array.from(
-      { length: particleCount },
-      (_, idx) => {
-        const angle =
-          (idx / particleCount) * Math.PI * 2 + (Math.random() - 0.5) * 0.35;
-        const speed = 2.4 + Math.random() * 6.8;
-        const shapes: Array<'star' | 'flake' | 'orb'> = ['star', 'star', 'flake', 'orb'];
-        return {
-          x: originX + (Math.random() - 0.5) * 18,
-          y: originY + (Math.random() - 0.5) * 18,
-          vx: Math.cos(angle) * speed,
-          vy: Math.sin(angle) * speed - (1.4 + Math.random() * 2.0),
-          size: 4.0 + Math.random() * 6.8,
-          alpha: 0.95 + Math.random() * 0.05,
-          decay: 0.0095 + Math.random() * 0.01,
-          rotation: Math.random() * Math.PI * 2,
-          rotationSpeed: (Math.random() - 0.5) * 0.14,
-          twinklePhase: Math.random() * Math.PI * 2,
-          twinkleSpeed: 0.16 + Math.random() * 0.18,
-          color: GOLD_PALETTE[idx % GOLD_PALETTE.length],
-          shape: shapes[idx % shapes.length],
-        };
-      }
-    );
+    const particles = createHeartAndSparkleBurst(originX, originY);
 
     let rafId = 0;
     const renderFrame = () => {
@@ -168,25 +248,30 @@ export const VintageEnvelopeStage: React.FC<VintageEnvelopeStageProps> = ({
         if (p.alpha <= 0.01) continue;
         aliveCount++;
 
-        // Physics update: drag + gentle gravity
-        p.x += p.vx;
+        // Physics update: drag + gentle flutter for hearts + soft gravity
+        p.x += p.vx + (p.shape === 'heart' ? Math.sin(p.twinklePhase) * 0.45 : 0);
         p.y += p.vy;
-        p.vx *= 0.974;
-        p.vy = p.vy * 0.974 + 0.07;
+        p.vx *= 0.975;
+        p.vy = p.vy * 0.975 + (p.shape === 'heart' ? 0.045 : 0.07);
         p.rotation += p.rotationSpeed;
         p.twinklePhase += p.twinkleSpeed;
         p.alpha -= p.decay;
 
-        const twinkle = 0.65 + 0.35 * Math.sin(p.twinklePhase);
+        const twinkle =
+          p.shape === 'heart'
+            ? 0.82 + 0.18 * Math.sin(p.twinklePhase)
+            : 0.65 + 0.35 * Math.sin(p.twinklePhase);
         const currentAlpha = Math.max(0, p.alpha * twinkle);
 
         ctx.save();
         ctx.globalAlpha = currentAlpha;
         ctx.fillStyle = p.color;
-        ctx.shadowColor = '#F5E1A4';
-        ctx.shadowBlur = p.shape === 'star' ? 12 : 7;
+        ctx.shadowColor = p.shape === 'heart' ? '#FF6B8B' : '#F5E1A4';
+        ctx.shadowBlur = p.shape === 'heart' ? 10 : p.shape === 'star' ? 12 : 7;
 
-        if (p.shape === 'star') {
+        if (p.shape === 'heart') {
+          drawHeartParticle(ctx, p.x, p.y, p.size, p.rotation);
+        } else if (p.shape === 'star') {
           drawFourPointStar(
             ctx,
             p.x,
@@ -241,9 +326,9 @@ export const VintageEnvelopeStage: React.FC<VintageEnvelopeStageProps> = ({
       onStartMusicIfClosed();
     }
 
-    // Phase 1: Wax seal fractures & Canvas gold sparkle particle burst triggers once
+    // Phase 1: Wax seal fractures & heart-shaped particles + gold sparkles burst outward
     setAnimStage('cracking');
-    setSparkleBurstId((id) => id + 1);
+    triggerHeartParticleBurst();
 
     // Phase 2: 3D Maroon top flap hinges open 180 degrees
     const t1 = window.setTimeout(() => {

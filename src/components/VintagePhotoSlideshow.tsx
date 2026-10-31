@@ -290,11 +290,16 @@ export const VintagePhotoSlideshow: React.FC<VintagePhotoSlideshowProps> = ({
             {/* LEFT PAGE: Mounted Photograph with Gold Corner Brackets */}
             <div className="relative p-5 sm:p-8 flex flex-col justify-center border-b md:border-b-0 md:border-r border-[#8B1E32]/15">
               {/* Photo Mounting Frame with Gold Corners */}
-              <div className="photo-bloom-trigger relative p-2.5 sm:p-3.5 bg-[#FFFDF9] rounded-lg shadow-[0_10px_28px_rgba(42,15,20,0.22)] border border-[#8B1E32]/20">
-                {/* Romantic Flower Bloom Ornament on Hover */}
+              <div className="photo-bloom-trigger relative p-2.5 sm:p-3.5 bg-[#FFFDF9] rounded-lg shadow-[0_10px_28px_rgba(42,15,20,0.22)] border border-[#8B1E32]/20 transition-shadow duration-500 hover:shadow-[0_14px_34px_rgba(184,41,67,0.28)]">
+                {/* Diagonal Pair of Romantic Flower Bloom Ornaments on Hover */}
                 <FlowerBloomOrnament
                   size="md"
                   className="absolute -top-4 -right-4 z-30"
+                />
+                <FlowerBloomOrnament
+                  size="sm"
+                  mirror
+                  className="absolute -bottom-3.5 -left-3.5 z-30"
                 />
 
                 {/* 4 Ornate Gold Photo-Corner Brackets */}
@@ -414,31 +419,33 @@ export const VintagePhotoSlideshow: React.FC<VintagePhotoSlideshowProps> = ({
                   aria-label={`Open Page ${index + 1}: ${slide.title}`}
                   type="button"
                   onClick={() => handleSelectPage(index)}
-                  className={`photo-bloom-trigger group relative rounded-xl overflow-hidden border transition-all text-left ${
+                  className={`photo-bloom-trigger group relative rounded-xl border transition-all text-left ${
                     isSelected
                       ? 'border-[#D4AF37] ring-2 ring-[#D4AF37]/45 scale-[1.01]'
-                      : 'border-[#D4AF37]/25 opacity-70 hover:opacity-100'
+                      : 'border-[#D4AF37]/25 opacity-75 hover:opacity-100'
                   }`}
                 >
                   <FlowerBloomOrnament
                     size="sm"
-                    className="absolute top-1.5 right-1.5 z-20"
+                    className="absolute -top-2.5 -right-2.5 z-20"
                   />
-                  <div className="aspect-[16/10] w-full bg-[#160408]">
-                    <img
-                      src={thumbSrc}
-                      alt={slide.title}
-                      referrerPolicy="no-referrer"
-                      className={`w-full h-full object-cover ${filterClass}`}
-                    />
-                  </div>
-                  <div className="px-2.5 py-1.5 bg-[#190307] flex items-center justify-between">
-                    <span className="text-[11px] font-medium text-[#F5E1A4] truncate">
-                      {slide.title}
-                    </span>
-                    <span className="text-[10px] text-[#E8D5B5]/60 tabular-nums ml-1 shrink-0">
-                      0{index + 1}
-                    </span>
+                  <div className="overflow-hidden rounded-xl">
+                    <div className="aspect-[16/10] w-full bg-[#160408]">
+                      <img
+                        src={thumbSrc}
+                        alt={slide.title}
+                        referrerPolicy="no-referrer"
+                        className={`w-full h-full object-cover transition-transform duration-500 group-hover:scale-105 ${filterClass}`}
+                      />
+                    </div>
+                    <div className="px-2.5 py-1.5 bg-[#190307] flex items-center justify-between">
+                      <span className="text-[11px] font-medium text-[#F5E1A4] truncate">
+                        {slide.title}
+                      </span>
+                      <span className="text-[10px] text-[#E8D5B5]/60 tabular-nums ml-1 shrink-0">
+                        0{index + 1}
+                      </span>
+                    </div>
                   </div>
                 </button>
               );
@@ -452,54 +459,61 @@ export const VintagePhotoSlideshow: React.FC<VintagePhotoSlideshowProps> = ({
       ===================================================================== */}
       {layoutMode === 'cinema' && (
         <div className="album-leather-cover relative rounded-2xl p-4 sm:p-6 border border-[#D4AF37]/50">
-          <div className="photo-bloom-trigger relative aspect-[16/10] w-full overflow-hidden rounded-xl border border-[#D4AF37]/45 bg-[#160408]">
+          <div className="photo-bloom-trigger relative w-full">
             <FlowerBloomOrnament
               size="lg"
-              className="absolute top-4 right-4 z-20"
+              className="absolute -top-4 -right-4 z-30"
             />
-            <img
-              key={`cinema-${activeSlide.id}`}
-              src={resolvedSrc}
-              alt={`${activeSlide.title} — ${activeSlide.caption}`}
-              referrerPolicy="no-referrer"
-              onClick={() => setLightboxOpen(true)}
-              onError={() =>
-                setImgErrors((prev) => ({ ...prev, [activeSlide.id]: true }))
-              }
-              className={`w-full h-full object-cover animate-ken-burns cursor-pointer ${filterClass}`}
+            <FlowerBloomOrnament
+              size="md"
+              mirror
+              className="absolute -bottom-4 -left-4 z-30"
             />
+            <div className="relative aspect-[16/10] w-full overflow-hidden rounded-xl border border-[#D4AF37]/45 bg-[#160408]">
+              <img
+                key={`cinema-${activeSlide.id}`}
+                src={resolvedSrc}
+                alt={`${activeSlide.title} — ${activeSlide.caption}`}
+                referrerPolicy="no-referrer"
+                onClick={() => setLightboxOpen(true)}
+                onError={() =>
+                  setImgErrors((prev) => ({ ...prev, [activeSlide.id]: true }))
+                }
+                className={`w-full h-full object-cover animate-ken-burns cursor-pointer ${filterClass}`}
+              />
 
-            <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-transparent" />
+              <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-transparent" />
 
-            <button
-              type="button"
-              onClick={handlePrev}
-              aria-label="Previous photo slide"
-              className="absolute left-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/65 border border-[#D4AF37]/50 text-[#F5E1A4] hover:bg-[#3D0A14] transition-colors flex items-center justify-center"
-            >
-              <ChevronLeft className="w-5 h-5" />
-            </button>
+              <button
+                type="button"
+                onClick={handlePrev}
+                aria-label="Previous photo slide"
+                className="absolute left-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/65 border border-[#D4AF37]/50 text-[#F5E1A4] hover:bg-[#3D0A14] transition-colors flex items-center justify-center"
+              >
+                <ChevronLeft className="w-5 h-5" />
+              </button>
 
-            <button
-              type="button"
-              onClick={handleNext}
-              aria-label="Next photo slide"
-              className="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/65 border border-[#D4AF37]/50 text-[#F5E1A4] hover:bg-[#3D0A14] transition-colors flex items-center justify-center"
-            >
-              <ChevronRight className="w-5 h-5" />
-            </button>
+              <button
+                type="button"
+                onClick={handleNext}
+                aria-label="Next photo slide"
+                className="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/65 border border-[#D4AF37]/50 text-[#F5E1A4] hover:bg-[#3D0A14] transition-colors flex items-center justify-center"
+              >
+                <ChevronRight className="w-5 h-5" />
+              </button>
 
-            <div className="absolute inset-x-0 bottom-0 p-5 sm:p-8 text-center">
-              <p className="text-xs uppercase tracking-[0.2em] text-[#F5E1A4]/85 mb-1">
-                {activeSlide.memoryDate}
-                {activeSlide.location ? ` · ${activeSlide.location}` : ''}
-              </p>
-              <h3 className="font-calligraphy text-3xl sm:text-5xl text-[#F5E1A4]">
-                {activeSlide.title}
-              </h3>
-              <p className="font-serif-editorial italic text-base sm:text-lg text-[#FBF6EE]/95 mt-1 max-w-xl mx-auto">
-                “{activeSlide.caption}”
-              </p>
+              <div className="absolute inset-x-0 bottom-0 p-5 sm:p-8 text-center">
+                <p className="text-xs uppercase tracking-[0.2em] text-[#F5E1A4]/85 mb-1">
+                  {activeSlide.memoryDate}
+                  {activeSlide.location ? ` · ${activeSlide.location}` : ''}
+                </p>
+                <h3 className="font-calligraphy text-3xl sm:text-5xl text-[#F5E1A4]">
+                  {activeSlide.title}
+                </h3>
+                <p className="font-serif-editorial italic text-base sm:text-lg text-[#FBF6EE]/95 mt-1 max-w-xl mx-auto">
+                  “{activeSlide.caption}”
+                </p>
+              </div>
             </div>
           </div>
         </div>
@@ -527,7 +541,12 @@ export const VintagePhotoSlideshow: React.FC<VintagePhotoSlideshowProps> = ({
                 >
                   <FlowerBloomOrnament
                     size="md"
-                    className="absolute -top-3 -right-3 z-20"
+                    className="absolute -top-3.5 -right-3.5 z-20"
+                  />
+                  <FlowerBloomOrnament
+                    size="sm"
+                    mirror
+                    className="absolute -bottom-3 -left-3 z-20"
                   />
 
                   {/* Gold Brass Pin at Top Center */}
