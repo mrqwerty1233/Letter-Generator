@@ -1,0 +1,6 @@
+{
+  "name": "Maison d'Amour — Vintage Letter & Occasion Website Generator",
+  "description": "Craft and share bespoke maroon and antique gold vintage letters with animated wax-seal envelopes, romantic photo slideshows, and classical music for your girlfriend's November 1st birthday and cherished occasions.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
